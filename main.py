@@ -106,8 +106,7 @@ def updateTags(force=False):
 # This function parses command line arguments;
 def parse_args():
     parser = argparse.ArgumentParser(description='Generate tags for blog posts')
-    parser.add_argument('--list-no-tags', action='store_true', help="List articles without tags.")
-    parser.add_argument('--generate-tags', action='store_true', help="Generate tags using GPT for articles without tags.")
+    parser.add_argument('--list-only', action='store_true', help="Only list articles without tags, don't generate.")
     parser.add_argument('--force-update', action='store_true', help="Force update tags for all articles.")
     parser.add_argument('--specific-path', type=str, help="Specific path to generate tags for.", default='./content/')
     parser.add_argument('--api-key', type=str, help="OpenAI API key (optional, can also use OPENAI_API_KEY env var.)")
@@ -137,17 +136,17 @@ def main():
     global CONTENT_DIR
     CONTENT_DIR = base_path
 
-    # Check if the user wants to list articles without tags;
-    if args.list_no_tags:
-        noTagFiles = listArticlesWithoutTags()
-        if noTagFiles:
-            logging.info("Articles without tags:")
-            for file in noTagFiles:
-                logging.info(f"  - {file}")
-        else:
-            logging.info("All articles have tags.")
-    # Check if the user wants to generate tags;
-    if args.generate_tags:
+    # List articles without tags;
+    noTagFiles = listArticlesWithoutTags()
+    if noTagFiles:
+        logging.info("Articles without tags:")
+        for file in noTagFiles:
+            logging.info(f"  - {file}")
+    else:
+        logging.info("All articles have tags.")
+
+    # Generate tags if --list-only is not specified;
+    if not args.list_only:
         updateTags(args.force_update)
 
 if __name__ == '__main__':

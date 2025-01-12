@@ -62,7 +62,7 @@ def listArticlesWithoutTags():
     return filesWithoutTags
 
 # This function updates tags for articles;
-def updateTags(force=False):
+def updateTags(force, model):
     markdownFiles = listMarkdownFiles(CONTENT_DIR)
     if not force:
         markdownFiles = [f for f in markdownFiles if not extractTags(f)]
@@ -86,7 +86,7 @@ def updateTags(force=False):
                 summary = content.split(SUMMARY_DELIMITER)[0]
                 # Generate tags using the modle;
                 response = client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model=model,
                     messages=[
                             {"role": "system", "content": "You are a highly professional senior article classification expert capable of generating classification tags for blog articles. The tags can be detailed down to specific vocabulary, and should use words rather than phrases whenever possible. Each set of generated tags should be carefully selected, highly abstract, strongly representative, and distinctive, with a quantity control of around 6 to 8, depending on the length of the article. Depending on the language of the article, you should generate classification tags in different languages. Your generated tags should pay attention to grammar, such as capitalizing the first letter of phrases, and ensure there is a space between English letters and other languages. Only output the tags, one per line, without adding `-` or `*` symbols to the tags."},
                             {"role": "user", "content": f"Generate tags for the following article:\n\n{summary}"}
@@ -106,10 +106,12 @@ def updateTags(force=False):
 # This function parses command line arguments;
 def parse_args():
     parser = argparse.ArgumentParser(description='Generate tags for blog posts')
-    parser.add_argument('--list-only', action='store_true', help="Only list articles without tags, don't generate.")
-    parser.add_argument('--force-update', action='store_true', help="Force update tags for all articles.")
-    parser.add_argument('--specific-path', type=str, help="Specific path to generate tags for.", default='./content/')
     parser.add_argument('--api-key', type=str, help="OpenAI API key (optional, can also use OPENAI_API_KEY env var.)")
+    parser.add_argument('--force-update', action='store_true', help="Force update tags for all articles.")
+    parser.add_argument('--list-only', action='store_true', help="Only list articles without tags, don't generate.")
+    parser.add_argument('--specific-path', type=str, help="Specific path to generate tags for.", default='./content/')
+    # Custom model, default is `gpt-4o-mini`;
+    parser.add_argument('--custom-model', type=str, help="Custom model to use for generating tags.", default='gpt-4o-mini')
     return parser.parse_args()
 
 # Main function;
@@ -147,7 +149,7 @@ def main():
 
     # Generate tags if --list-only is not specified;
     if not args.list_only:
-        updateTags(args.force_update)
+        updateTags(args.force_update, args.custom_model)
 
 if __name__ == '__main__':
     main()

@@ -17,7 +17,7 @@ If you think it's troublesome to write tags for each article, I feel the same wa
 - [x] Support for forced updates;
 - [x] Comprehensive logging output system;
 - [x] Support for automatic recognition of multilingual articles;
-- [ ] Support for specifying models;
+- [x] Support for specifying models;
 - [ ] Support for accessing API using a proxy;
 
 ## Usage

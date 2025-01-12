@@ -9,9 +9,8 @@ import re                       # For regular expressions;
 # Logging configuration;
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Import the OpenAI library and set the API key;
+# Import the OpenAI library;
 from openai import OpenAI
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Some basic configuration;
 CONTENT_DIR = './content/'
@@ -111,11 +110,24 @@ def parse_args():
     parser.add_argument('--generate-tags', action='store_true', help="Generate tags using GPT for articles without tags.")
     parser.add_argument('--force-update', action='store_true', help="Force update tags for all articles.")
     parser.add_argument('--specific-path', type=str, help="Specific path to generate tags for.", default='./content/')
+    parser.add_argument('--api-key', type=str, help="OpenAI API key (optional, can also use OPENAI_API_KEY env var.)")
     return parser.parse_args()
 
 # Main function;
 def main():
     args = parse_args()
+    
+    # Initialize OpenAI client with API key from args or env;
+    api_key = args.api_key or os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        logging.error("No API key provided. Use --api-key or set OPENAI_API_KEY environment variable.")
+        return
+
+    # Initialize the OpenAI client;
+    global client
+    client = OpenAI(api_key=api_key)
+
+    # Set the content directory;
     base_path = args.specific_path
     # Check if the path exists;
     if not os.path.exists(base_path):
